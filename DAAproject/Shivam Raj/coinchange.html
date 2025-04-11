@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Coin Change Problem Solver</title>
+    <link rel="stylesheet" href="coinstyle.css">
+</head>
+<body>
+    <h1>Coin Change Problem Solver</h1>
+    <div>
+        <label for="amount" class="label">Amount:</label>
+        <input type="number" class="input" id="amount" placeholder="Enter amount"><br><br>
+        <label for="coins" class="label">Coins:</label>
+        <input type="text" class="input" id="coins" placeholder="Enter coins separated by commas"><br><br>
+        <div class="btns"><button id="solveCoinChangeBtn" class="btn">Solve Coin Change Problem</button></div>
+        <p id="result" class="answer"></p>
+        <ul id="solutions" class="answer"></ul>
+    </div>
+
+    <script>
+        function solveCoinChange() {
+            const amount = parseInt(document.getElementById("amount").value);
+            const coins = document.getElementById("coins").value.split(",").map(Number);
+
+            // Coin change solving logic
+            function coinChangeWays(amount, coins) {
+                const dp = Array(amount + 1).fill(0);
+                dp[0] = 1;
+
+                for (let coin of coins) {
+                    for (let i = coin; i <= amount; i++) {
+                        dp[i] += dp[i - coin];
+                    }
+                }
+
+                return dp[amount];
+            }
+
+            function coinChangeCombinations(amount, coins) {
+                const dp = Array(amount + 1).fill(null);
+                dp[0] = [[]];
+
+                for (let coin of coins) {
+                    for (let i = coin; i <= amount; i++) {
+                        if (dp[i - coin] !== null) {
+                            if (dp[i] === null) {
+                                dp[i] = dp[i - coin].map(combo => [...combo, coin]);
+                            } else {
+                                dp[i].push(...dp[i - coin].map(combo => [...combo, coin]));
+                            }
+                        }
+                    }
+                }
+
+                return dp[amount] ? dp[amount] : [];
+            }
+
+            const ways = coinChangeWays(amount, coins);
+            const solutions = coinChangeCombinations(amount, coins);
+
+            document.getElementById("result").innerText = "Number of ways to make the change: " + ways;
+            const solutionsList = document.getElementById("solutions");
+            solutionsList.innerHTML = "<strong>Possible solutions:</strong>";
+            solutions.forEach(solution => {
+                const solutionItem = document.createElement("li");
+                solutionItem.textContent = solution.join(', ');
+                solutionsList.appendChild(solutionItem);
+            });
+        }
+
+        document.getElementById("solveCoinChangeBtn").addEventListener("click", solveCoinChange);
+    </script>
+</body>
+</html>
